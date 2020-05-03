@@ -5,28 +5,39 @@ let connection = require('../db.js');
 // Pages Rendering
 exports.renderSecondPage = function (req, res) {
     console.log('rendering second page');
-    connection.query("SELECT * from user;" , function (error, resultSQL) {
+    connection.query("SELECT * from user;", function (error, resultSQL) {
         if (error) {
             res.status(400).json(error);
         }
         else {
             res.status(200);
             userList = resultSQL;
-            res.json({users: userList});
+            res.json({ users: userList, 'message': 'success' });
         }
     })
 }
 
 exports.renderAddMemberPage = function (req, res) {
     console.log('rendering add member page');
-    res.json({ label: "", iduser: "-1" });
+    res.json({ label: "", iduser: "-1", 'message': 'success' });
 
 };
 
 exports.renderUpdateMemberPage = function (req, res) {
     console.log('rendering update member page');
     connection.query("Select * from user where iduser = ?", req.params.iduser, (error, data) => {
-        res.json(data[0]);
+        res.json(data[0], { 'message': 'success' });
+    })
+};
+
+exports.renderDetailsUser = function (req, res) {
+    connection.query("Select * from user where iduser = ?", req.params.iduser, (error, data) => {
+        if (error) {
+            res.status(400).json(error);
+        }
+        else {
+            res.json({user: data[0],'message': 'success'});
+        }
     })
 };
 
@@ -47,7 +58,7 @@ exports.userNew = function (req, res) {
                 res.status(400).json(error);
             }
             else {
-                res.status(201).json({'message': 'success'});
+                res.status(201).json({ 'message': 'success' });
             }
         });
     }
@@ -70,7 +81,7 @@ exports.updateUser = function (req, res) {
                 res.status(400).json(error);
             }
             else {
-                res.status(202).json({'message': 'success'});
+                res.status(202).json({ 'message': 'success' });
             }
         });
 
@@ -92,7 +103,7 @@ exports.removeUser = function (req, res) {
                     res.status(400).json(error);
                 }
                 else {
-                    res.json({'message': 'success'})
+                    res.json({ 'message': 'success' })
                 }
             });
         }

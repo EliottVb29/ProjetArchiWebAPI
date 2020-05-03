@@ -19,14 +19,14 @@ exports.renderMainPage = function (req, res) {
                 event.Date = new Date(event.Date).toDateString();
             });
 
-            res.json({ events: eventList, users: userList });
+            res.json({ events: eventList, users: userList, 'message': 'success' });
         }
     });
 }
 
 exports.renderAddItemPage = function (req, res) {
     console.log('rendering add event page');
-    res.json({ label: "", idcal: "-1" });
+    res.json({ label: "", idcal: "-1" , 'message': 'success'});
 
 };
 
@@ -34,14 +34,14 @@ exports.renderAddItemPage = function (req, res) {
 exports.renderUpdateItemPage = function (req, res) {
     console.log('rendering update event page');
     connection.query("Select * from event where idcal = ?", req.params.idcal, (error, data) => {
-        res.json(data[0]);
+        res.json(data[0],{'message': 'success'});
     })
 };
 
 
 exports.renderDetailsItem = function (req, res) {
     console.log("renderDetails");
-    let sqlevent = "select type, name, date from event where idcal = ?";
+    let sqlevent = "select idcal, type, name, date from event where idcal = ?";
     let sql = "Select lastname, firstname, position, name, type, date, presence" +
         " from event join register_to on register_to.FK_idcal = event.idcal " +
         "join user on register_to.FK_iduser = user.iduser where FK_idcal = ?";
@@ -50,7 +50,7 @@ exports.renderDetailsItem = function (req, res) {
             res.status(400).json(error);
         }
         else {
-            let event = { name: resultSQL[0].name, type: resultSQL[0].type, date: new Date(resultSQL[0].date).toDateString() };
+            let event = { idcal: resultSQL[0].idcal, name: resultSQL[0].name, type: resultSQL[0].type, date: new Date(resultSQL[0].date).toDateString() };
             connection.query(sql, [req.params.idcal], (error, resultSQL) => {
                 if (error) {
                     res.status(400).json(error);
@@ -69,7 +69,7 @@ exports.renderDetailsItem = function (req, res) {
                     console.log(event);
                     console.log(listUserNo);
                     console.log(listUserYes);
-                    res.json({ users: userList, event: event, listUserYes: listUserYes, listUserNo: listUserNo });
+                    res.json({ event: event, listUserYes: listUserYes, listUserNo: listUserNo });
                 }
             });
         }

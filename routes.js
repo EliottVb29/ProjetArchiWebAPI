@@ -20,6 +20,7 @@ router.put('/api/calendar/no/:idcal', eventController.updateNo);
 // API USERS
 
 router.get('/api/members', userController.renderSecondPage);
+router.get('/api/members/details/:iduser', userController.renderDetailsUser);
 router.post('/api/members', userController.userNew);
 router.put('/api/members/', userController.updateUser);
 router.delete('/api/members/:iduser', userController.removeUser);
