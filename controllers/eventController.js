@@ -1,12 +1,16 @@
+//Appel aux modèles
 let Event = require('../models/eventModel.js');
 let User = require('../models/userModel.js');
+
+//Listes
 let eventList = [];
 let userList = [];
+
+//Appel à la db
 let connection = require('../db.js');
 
 //Pages Rendering
 exports.renderMainPage = function (req, res) {
-    console.log('rendering main page');
     getMembersFromDb();
     connection.query("SELECT * from event;", function (error, resultSQL) {
         if (error) {
@@ -23,20 +27,6 @@ exports.renderMainPage = function (req, res) {
         }
     });
 }
-
-exports.renderAddItemPage = function (req, res) {
-    console.log('rendering add event page');
-    res.json({ label: "", idcal: "-1" , 'message': 'success'});
-
-};
-
-
-exports.renderUpdateItemPage = function (req, res) {
-    console.log('rendering update event page');
-    connection.query("Select * from event where idcal = ?", req.params.idcal, (error, data) => {
-        res.json(data[0],{'message': 'success'});
-    })
-};
 
 
 exports.renderDetailsItem = function (req, res) {
@@ -66,9 +56,6 @@ exports.renderDetailsItem = function (req, res) {
                             listUserNo.push(new User(presence.lastname, presence.firstname, presence.position, null));
                         }
                     });
-                    console.log(event);
-                    console.log(listUserNo);
-                    console.log(listUserYes);
                     res.json({ event: event, listUserYes: listUserYes, listUserNo: listUserNo });
                 }
             });
@@ -85,8 +72,6 @@ exports.createItem = function (req, res) {
     let date = req.body.date;
     if (type != '' && name != '' && date != '') {
         let event = new Event(type, name, new Date(date));
-        console.log(event);
-        console.log("Event list = " + eventList);
         connection.query("INSERT INTO event set ?", event, function (error, resultSQL) {
             if (error) {
                 res.status(400).json(error);
@@ -102,7 +87,6 @@ exports.updateItem = function (req, res) {
     let name = req.body.name;
     let date = new Date(req.body.date);
     let idcal = req.body.idcal;
-    console.log("updating event with id: " + req.body.idcal + " ; type= " + type + " ; name= " + name + " ; date= " + date);
     let sql = "UPDATE event SET type=?, name=?, date=? WHERE idcal = ?";
     let sqlQuery = connection.query(sql, [type, name, date, idcal],
         function (error, resultSQL) {
@@ -114,13 +98,10 @@ exports.updateItem = function (req, res) {
             }
             res.status(202).json({'message': 'success'});
         });
-
-    console.log("Query applied: " + sqlQuery);
 }
 
 
 exports.removeItem = function (req, res) {
-    console.log('removing event id: ' + req.params.idcal);
     let sql = "DELETE FROM register_to WHERE FK_idcal = ?";
     connection.query(sql, [req.params.idcal], (error, resultSQL) => {
         if (error) {
@@ -141,15 +122,12 @@ exports.removeItem = function (req, res) {
 }
 
 exports.updateYes = function (req, res) {
-    console.log('User ' + req.body.users + ' said Yes for: ' + req.params.idcal);
-    getMembersFromDb();
     let sql = "select FK_idcal, FK_iduser from register_to where FK_idcal = ? and FK_iduser = ?";
     connection.query(sql, [req.params.idcal, req.body.users], (error, resultSQL) => {
         if (error) {
             res.status(400).json(error);
         }
         else {
-            console.log(resultSQL);
             if (resultSQL.length === 0) {
                 let sql = "INSERT INTO register_to (FK_idcal, FK_iduser, presence) VALUES (?, ?, 'YES')";
                 connection.query(sql, [req.params.idcal, req.body.users], (error, resultSQL) => {
@@ -177,16 +155,12 @@ exports.updateYes = function (req, res) {
 }
 
 exports.updateNo = function (req, res) {
-
-    console.log('User ' + req.body.users + ' said No for: ' + req.params.idcal);
-
     let sql = "select FK_idcal, FK_iduser from register_to where FK_idcal = ? and FK_iduser = ?"
     connection.query(sql, [req.params.idcal, req.body.users], (error, resultSQL) => {
         if (error) {
             res.status(400).json(error);
         }
         else {
-            console.log(resultSQL);
             if (resultSQL.length === 0) {
                 let sql = "INSERT INTO register_to (FK_idcal, FK_iduser, presence) VALUES (?, ?, 'NO')";
                 connection.query(sql, [req.params.idcal, req.body.users], (error, resultSQL) => {

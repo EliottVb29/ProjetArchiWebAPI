@@ -25,6 +25,7 @@ app.use(bodyParser.json());
 //Permet de use le css
 app.use(express.static('public'));
 
+//Définition des routes vers serveur
 app.use('/', router);
 
 //Vérification port
